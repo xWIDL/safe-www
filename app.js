@@ -17,6 +17,7 @@ app.use(route.get('/', function *(){
   this.body = yield render('home');
 }));
 
+// TODO: set timeout
 app.use(route.post('/submit', function *(next) {
   // ignore non-POSTs
   if ('POST' != this.method) return yield next;
@@ -41,6 +42,28 @@ app.use(route.post('/submit', function *(next) {
   }
 
   this.body = yield render('responses', { responses: responses });
+}));
+
+app.use(route.get('/examples/:id', function *(id, next) {
+
+  var responses = [];
+  var strs = id.split(".");
+
+  if (strs.length == 2 && strs[1] == "js") { // sanity check
+
+    var filepath = __dirname + "/examples/" + id
+    var buf = fs.readFileSync(filepath);
+    var stdout = execSync('$SAFE_HOME/bin/safe analyze ' + filepath);
+    responses.push({
+        name: id,
+        js: buf.toString(),
+        out: stdout.toString()
+    });
+
+    this.body = yield render('responses', { responses: responses });
+  } else {
+    this.redirect("/");
+  }
 }));
 
 app.listen(3000);
