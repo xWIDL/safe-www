@@ -14,7 +14,7 @@ var render = views(path.join(__dirname, '/views'), { ext: 'ejs' });
 app.use(logger());
 
 app.use(route.get('/', function *(){
-  this.body = 'safe-www';
+  this.body = yield render('home');
 }));
 
 app.use(route.post('/submit', function *(next) {
